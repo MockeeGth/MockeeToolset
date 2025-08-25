@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import Canny from './pages/Canny'
 import FluxUpscale from './pages/FluxUpscale'
 import FluxGenerate from './pages/FluxGenerate'
+import Gallery from './pages/Gallery'
 import SettingsModal from './components/SettingsModal'
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
         <Route path="/canny" element={<Canny />} />
         <Route path="/flux-upscale" element={<FluxUpscale />} />
         <Route path="/flux-generate" element={<FluxGenerate />} />
+        <Route path="/gallery" element={<Gallery />} />
       </Routes>
       
       {isSettingsOpen && (

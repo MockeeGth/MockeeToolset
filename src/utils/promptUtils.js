@@ -40,6 +40,19 @@ export const promptUtils = {
     return prompts.length > 0 ? prompts[0] : ''
   },
 
+  // Auto-save prompt and return updated list
+  autoSavePrompt: (promptText) => {
+    if (!promptText || !promptText.trim()) return promptUtils.loadSavedPrompts()
+    return promptUtils.savePrompt(promptText)
+  },
+
+  // Check if a prompt is already saved
+  isPromptSaved: (promptText) => {
+    if (!promptText || !promptText.trim()) return false
+    const prompts = promptUtils.loadSavedPrompts()
+    return prompts.includes(promptText.trim())
+  },
+
   // Clear all saved prompts
   clearAllPrompts: () => {
     try {

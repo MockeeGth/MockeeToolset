@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { SERVER_API_URL } from '../config/cloudinary'
 import JSZip from 'jszip'
 import PromptInput from '../components/PromptInput'
+import { galleryUtils } from '../utils/galleryUtils'
+import { promptUtils } from '../utils/promptUtils'
 import './Canny.css'
 
 function Canny() {
@@ -31,6 +33,18 @@ function Canny() {
             processedUrls: [],
             status: 'pending' // pending, uploading, uploaded, processing, processed, error
           }
+          
+          // Save uploaded image to gallery
+          galleryUtils.addImage({
+            id: newImage.id,
+            url: e.target.result,
+            filename: file.name,
+            type: 'uploaded',
+            tool: 'Canny',
+            size: file.size,
+            timestamp: Date.now()
+          })
+          
           setUploadedImages(prev => [...prev, newImage])
         }
         reader.readAsDataURL(file)
@@ -100,7 +114,7 @@ function Canny() {
     }
 
     // Create prediction through proxy server
-    const predictionResponse = await fetch('http://localhost:3001/api/replicate/predictions', {
+    const predictionResponse = await fetch(`${SERVER_API_URL}/api/replicate/predictions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -136,7 +150,7 @@ function Canny() {
     let attempts = 0
 
     while (attempts < maxAttempts) {
-      const response = await fetch(`http://localhost:3001/api/replicate/predictions/${predictionId}?apiKey=${apiKey}`)
+      const response = await fetch(`${SERVER_API_URL}/api/replicate/predictions/${predictionId}?apiKey=${apiKey}`)
 
       if (!response.ok) {
         throw new Error('Failed to get prediction status')
@@ -181,6 +195,9 @@ function Canny() {
       alert('Please enter a prompt before processing')
       return
     }
+    
+    // Auto-save prompt when processing starts
+    promptUtils.autoSavePrompt(prompt)
     
     console.log('Starting processing...')
     setIsProcessing(true)
@@ -240,6 +257,17 @@ function Canny() {
             console.log(`Processing generation ${i + 1} of ${numGenerations}`)
             const processedOutput = await processWithReplicate(result.secure_url, prompt)
             processedResults.push(processedOutput)
+            
+            // Save generated image to gallery
+            galleryUtils.addImage({
+              id: `${image.id}_gen_${i}`,
+              url: processedOutput,
+              filename: `${image.name.split('.')[0]}_generated_${i + 1}.jpg`,
+              type: 'generated',
+              tool: 'Canny',
+              prompt: prompt,
+              timestamp: Date.now()
+            })
             
             // Update with partial results
             setUploadedImages(prev => 

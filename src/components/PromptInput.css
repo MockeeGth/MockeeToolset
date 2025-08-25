@@ -124,6 +124,9 @@
 }
 
 .saved-prompt-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 0.75rem 1rem;
   border-bottom: 1px solid #f1f3f4;
   cursor: pointer;
@@ -139,8 +142,32 @@
 }
 
 .saved-prompt-text {
-  display: block;
+  flex: 1;
   color: #495057;
   font-size: 0.875rem;
   line-height: 1.4;
+  margin-right: 0.5rem;
+  word-break: break-word;
+}
+
+.delete-prompt-button {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  opacity: 0;
+  flex-shrink: 0;
+}
+
+.saved-prompt-item:hover .delete-prompt-button {
+  opacity: 1;
+}
+
+.delete-prompt-button:hover {
+  background: rgba(220, 53, 69, 0.1);
+  color: #c82333;
+  transform: scale(1.1);
 }

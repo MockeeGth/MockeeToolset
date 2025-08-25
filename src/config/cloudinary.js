@@ -1,5 +1,7 @@
-// Server API base URL
-export const SERVER_API_URL = 'http://localhost:3001'
+// Server API base URL - dynamically set based on environment
+export const SERVER_API_URL = process.env.NODE_ENV === 'production' 
+  ? '' // Use relative URLs in production (Netlify functions)
+  : 'http://localhost:3001' // Use local server in development
 
 // Helper function to generate Cloudinary URL (using public cloud name)
 export const getCloudinaryUrl = (publicId, transformations = '') => {

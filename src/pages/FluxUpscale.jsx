@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { SERVER_API_URL } from '../config/cloudinary'
+import { galleryUtils } from '../utils/galleryUtils'
 import JSZip from 'jszip'
 import './Canny.css'
 
@@ -33,6 +34,18 @@ function FluxUpscale() {
             processedUrls: [],
             status: 'pending' // pending, uploading, uploaded, processing, processed, error
           }
+          
+          // Save uploaded image to gallery
+          galleryUtils.addImage({
+            id: newImage.id,
+            url: e.target.result,
+            filename: file.name,
+            type: 'uploaded',
+            tool: 'FluxUpscale',
+            size: file.size,
+            timestamp: Date.now()
+          })
+          
           setUploadedImages(prev => [...prev, newImage])
         }
         reader.readAsDataURL(file)
@@ -130,7 +143,7 @@ function FluxUpscale() {
     const modifiedWorkflowJson = JSON.stringify(workflowData)
 
     // Create prediction through proxy server
-    const predictionResponse = await fetch('http://localhost:3001/api/replicate/predictions', {
+    const predictionResponse = await fetch(`${SERVER_API_URL}/api/replicate/predictions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -160,7 +173,7 @@ function FluxUpscale() {
     let attempts = 0
 
     while (attempts < maxAttempts) {
-      const response = await fetch(`http://localhost:3001/api/replicate/predictions/${predictionId}?apiKey=${apiKey}`)
+      const response = await fetch(`${SERVER_API_URL}/api/replicate/predictions/${predictionId}?apiKey=${apiKey}`)
 
       if (!response.ok) {
         throw new Error('Failed to get prediction status')
@@ -252,6 +265,16 @@ function FluxUpscale() {
           console.log('Processing upscale with Replicate')
           const processedOutput = await processWithReplicate(result.secure_url, '')
           const processedResults = [processedOutput]
+          
+          // Save upscaled image to gallery
+          galleryUtils.addImage({
+            id: `${image.id}_upscaled`,
+            url: processedOutput,
+            filename: `${image.name.split('.')[0]}_upscaled.jpg`,
+            type: 'generated',
+            tool: 'FluxUpscale',
+            timestamp: Date.now()
+          })
           
           // Update with results
           setUploadedImages(prev => 

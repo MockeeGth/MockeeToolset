@@ -3,13 +3,15 @@ import { Link } from 'react-router-dom'
 import { SERVER_API_URL } from '../config/cloudinary'
 import JSZip from 'jszip'
 import PromptInput from '../components/PromptInput'
+import { galleryUtils } from '../utils/galleryUtils'
+import { promptUtils } from '../utils/promptUtils'
 import './Canny.css'
 
 function FluxGenerate() {
   const [generatedImages, setGeneratedImages] = useState([])
   const [isProcessing, setIsProcessing] = useState(false)
   const [prompt, setPrompt] = useState('')
-  const [generationsPerImage, setGenerationsPerImage] = useState(1)
+  const [generationsPerImage, setGenerationsPerImage] = useState('')
   const [steps, setSteps] = useState(30)
   const [selectedModel, setSelectedModel] = useState('flux-dev')
   const [currentImageIndex, setCurrentImageIndex] = useState({})
@@ -108,7 +110,7 @@ function FluxGenerate() {
     const config = modelConfigs[selectedModel]
 
     // Create prediction through proxy server
-    const predictionResponse = await fetch('http://localhost:3001/api/replicate/predictions', {
+    const predictionResponse = await fetch(`${SERVER_API_URL}/api/replicate/predictions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -136,7 +138,7 @@ function FluxGenerate() {
     let attempts = 0
 
     while (attempts < maxAttempts) {
-      const response = await fetch(`http://localhost:3001/api/replicate/predictions/${predictionId}?apiKey=${apiKey}`)
+      const response = await fetch(`${SERVER_API_URL}/api/replicate/predictions/${predictionId}?apiKey=${apiKey}`)
 
       if (!response.ok) {
         throw new Error('Failed to get prediction status')
@@ -181,6 +183,9 @@ function FluxGenerate() {
       return
     }
     
+    // Auto-save prompt when generation starts
+    promptUtils.autoSavePrompt(prompt)
+    
     console.log('Starting generation...')
     setIsProcessing(true)
     setProcessingCanceled(false)
@@ -188,13 +193,14 @@ function FluxGenerate() {
     
     try {
       // Generate the specified number of images
-      for (let i = 0; i < generationsPerImage; i++) {
+      const numGenerations = generationsPerImage === '' ? 1 : parseInt(generationsPerImage) || 1
+      for (let i = 0; i < numGenerations; i++) {
         if (cancelRef.current) {
           console.log(`Generation canceled during image ${i + 1}`)
           break
         }
         
-        console.log(`Generating image ${i + 1} of ${generationsPerImage}`)
+        console.log(`Generating image ${i + 1} of ${numGenerations}`)
         
         // Create a new image entry for this generation
         const newImageId = Date.now() + Math.random() + i
@@ -211,6 +217,17 @@ function FluxGenerate() {
         
         // Generate image with Replicate
         const generatedOutput = await processWithReplicate(null, prompt)
+        
+        // Save generated image to gallery
+        galleryUtils.addImage({
+          id: `flux_gen_${newImageId}`,
+          url: generatedOutput,
+          filename: `flux_generated_${Date.now()}.jpg`,
+          type: 'generated',
+          tool: 'FluxGenerate',
+          prompt: prompt,
+          timestamp: Date.now()
+        })
         
         // Update with generated result
         setGeneratedImages(prev => 
@@ -341,12 +358,14 @@ function FluxGenerate() {
               </label>
               <input
                 id="generations-input"
-                type="number"
+                type="text"
                 value={generationsPerImage}
-                onChange={(e) => setGenerationsPerImage(parseInt(e.target.value) || 1)}
-                min="1"
-                max="10"
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^0-9]/g, '')
+                  setGenerationsPerImage(value === '' ? '' : parseInt(value) || '')
+                }}
                 className="generations-input"
+                placeholder="1"
               />
               <p className="generations-description">
                 Number of images to generate from the prompt
