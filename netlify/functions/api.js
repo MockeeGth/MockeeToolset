@@ -1,4 +1,4 @@
-import fetch from 'node-fetch'
+const fetch = require('node-fetch')
 
 // Cloudinary configuration
 const CLOUDINARY_CONFIG = {
@@ -7,7 +7,7 @@ const CLOUDINARY_CONFIG = {
   apiSecret: '2WmK9gOQWW2dETw9206jpsJW_Cw'
 }
 
-export const handler = async (event, context) => {
+exports.handler = async (event, context) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
