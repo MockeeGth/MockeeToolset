@@ -26,20 +26,8 @@ exports.handler = async (event, context) => {
   console.log('Processed path:', path)
   
   try {
-    // Test: respond to any path for debugging
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({ 
-        message: 'Function reached successfully',
-        receivedPath: path,
-        originalPath: event.path,
-        method: event.httpMethod
-      })
-    }
-    
-    // Replicate predictions proxy (temporarily disabled for testing)
-    if (false && path.startsWith('replicate/predictions')) {
+    // Replicate predictions proxy
+    if (path.includes('replicate/predictions')) {
       if (event.httpMethod === 'POST') {
         const { apiKey, model, input } = JSON.parse(event.body)
         
@@ -64,8 +52,19 @@ exports.handler = async (event, context) => {
       
       // GET request for prediction status
       if (event.httpMethod === 'GET') {
-        const predictionId = path.split('/').pop()
+        const pathParts = path.split('/')
+        const predictionId = pathParts[pathParts.length - 1]
         const apiKey = event.queryStringParameters.apiKey
+        
+        console.log('GET request - prediction ID:', predictionId)
+        
+        if (!predictionId || predictionId === 'undefined') {
+          return {
+            statusCode: 400,
+            headers,
+            body: JSON.stringify({ error: 'Missing prediction ID' })
+          }
+        }
         
         const response = await axios.get(`https://api.replicate.com/v1/predictions/${predictionId}`, {
           headers: {
