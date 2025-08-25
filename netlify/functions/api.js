@@ -1,5 +1,5 @@
 // Netlify Function for API proxying
-const fetch = require('node-fetch')
+const axios = require('axios')
 
 exports.handler = async (event, context) => {
   console.log('Function called with path:', event.path)
@@ -33,21 +33,17 @@ exports.handler = async (event, context) => {
           input: input
         }
         
-        const response = await fetch('https://api.replicate.com/v1/predictions', {
-          method: 'POST',
+        const response = await axios.post('https://api.replicate.com/v1/predictions', requestBody, {
           headers: {
             'Authorization': `Token ${apiKey}`,
             'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(requestBody)
+          }
         })
-
-        const data = await response.json()
         
         return {
           statusCode: response.status,
           headers,
-          body: JSON.stringify(data)
+          body: JSON.stringify(response.data)
         }
       }
       
@@ -56,19 +52,17 @@ exports.handler = async (event, context) => {
         const predictionId = path.split('/').pop()
         const apiKey = event.queryStringParameters.apiKey
         
-        const response = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
+        const response = await axios.get(`https://api.replicate.com/v1/predictions/${predictionId}`, {
           headers: {
             'Authorization': `Token ${apiKey}`,
             'Content-Type': 'application/json'
           }
         })
-
-        const data = await response.json()
         
         return {
           statusCode: response.status,
           headers,
-          body: JSON.stringify(data)
+          body: JSON.stringify(response.data)
         }
       }
     }
