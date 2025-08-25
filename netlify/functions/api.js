@@ -20,11 +20,12 @@ exports.handler = async (event, context) => {
     }
   }
 
-  const path = event.path.replace('/.netlify/functions/api', '')
+  const path = event.path.replace('/.netlify/functions/api/', '').replace('/.netlify/functions/api', '')
+  console.log('Processed path:', path)
   
   try {
     // Replicate predictions proxy
-    if (path.startsWith('/replicate/predictions')) {
+    if (path.startsWith('replicate/predictions')) {
       if (event.httpMethod === 'POST') {
         const { apiKey, model, input } = JSON.parse(event.body)
         
