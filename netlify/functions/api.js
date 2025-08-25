@@ -1,4 +1,4 @@
-const fetch = require('node-fetch')
+// Node 20+ has built-in fetch
 
 // Cloudinary configuration
 const CLOUDINARY_CONFIG = {
