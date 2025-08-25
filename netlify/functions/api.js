@@ -1,12 +1,4 @@
-// Node 20+ has built-in fetch
-
-// Cloudinary configuration
-const CLOUDINARY_CONFIG = {
-  cloudName: 'dv6brx5oe',
-  apiKey: '554749169912342',
-  apiSecret: '2WmK9gOQWW2dETw9206jpsJW_Cw'
-}
-
+// Netlify Function for API proxying
 exports.handler = async (event, context) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -76,10 +68,8 @@ exports.handler = async (event, context) => {
       }
     }
     
-    // Cloudinary upload proxy
+    // Cloudinary upload proxy (placeholder)
     if (path === '/cloudinary/upload' && event.httpMethod === 'POST') {
-      // Note: File upload handling would need multipart form parsing
-      // For now, return a placeholder response
       return {
         statusCode: 200,
         headers,
