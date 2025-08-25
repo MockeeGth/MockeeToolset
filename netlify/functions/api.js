@@ -1,4 +1,4 @@
-// Netlify Function for API proxying
+// Netlify Function for API proxying - updated to use axios
 const axios = require('axios')
 
 exports.handler = async (event, context) => {
