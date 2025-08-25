@@ -4,6 +4,8 @@ const axios = require('axios')
 exports.handler = async (event, context) => {
   console.log('Function called with path:', event.path)
   console.log('Function called with method:', event.httpMethod)
+  console.log('Query string parameters:', event.queryStringParameters)
+  console.log('Full event object keys:', Object.keys(event))
   
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -24,8 +26,20 @@ exports.handler = async (event, context) => {
   console.log('Processed path:', path)
   
   try {
-    // Replicate predictions proxy
-    if (path.startsWith('replicate/predictions')) {
+    // Test: respond to any path for debugging
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({ 
+        message: 'Function reached successfully',
+        receivedPath: path,
+        originalPath: event.path,
+        method: event.httpMethod
+      })
+    }
+    
+    // Replicate predictions proxy (temporarily disabled for testing)
+    if (false && path.startsWith('replicate/predictions')) {
       if (event.httpMethod === 'POST') {
         const { apiKey, model, input } = JSON.parse(event.body)
         
