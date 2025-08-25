@@ -1,5 +1,7 @@
 // Netlify Function for API proxying
-exports.handler = async (event, context) => {
+import fetch from 'node-fetch'
+
+export const handler = async (event, context) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
