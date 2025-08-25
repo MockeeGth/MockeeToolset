@@ -2,6 +2,9 @@
 const fetch = require('node-fetch')
 
 exports.handler = async (event, context) => {
+  console.log('Function called with path:', event.path)
+  console.log('Function called with method:', event.httpMethod)
+  
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -86,6 +89,7 @@ exports.handler = async (event, context) => {
     }
     
   } catch (error) {
+    console.error('Function error:', error)
     return {
       statusCode: 500,
       headers,
