@@ -1,0 +1,189 @@
+{
+  "6": {
+    "inputs": {
+      "text": "high res image, detailed skin, natural realistic photo, detailed hair,",
+      "clip": [
+        "41",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Positive Prompt)"
+    }
+  },
+  "9": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "38",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "30": {
+    "inputs": {
+      "ckpt_name": "flux1-dev-fp8.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Load Checkpoint"
+    }
+  },
+  "33": {
+    "inputs": {
+      "text": "",
+      "clip": [
+        "41",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Negative Prompt)"
+    }
+  },
+  "35": {
+    "inputs": {
+      "guidance": 3.5,
+      "conditioning": [
+        "6",
+        0
+      ]
+    },
+    "class_type": "FluxGuidance",
+    "_meta": {
+      "title": "FluxGuidance"
+    }
+  },
+  "38": {
+    "inputs": {
+      "upscale_by": 2,
+      "seed": 117755025618131,
+      "steps": 20,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "beta",
+      "denoise": 0.30000000000000004,
+      "mode_type": "Chess",
+      "tile_width": 1024,
+      "tile_height": 1024,
+      "mask_blur": 8,
+      "tile_padding": 32,
+      "seam_fix_mode": "None",
+      "seam_fix_denoise": 1,
+      "seam_fix_width": 64,
+      "seam_fix_mask_blur": 8,
+      "seam_fix_padding": 16,
+      "force_uniform_tiles": true,
+      "tiled_decode": true,
+      "image": [
+        "40",
+        0
+      ],
+      "model": [
+        "41",
+        0
+      ],
+      "positive": [
+        "35",
+        0
+      ],
+      "negative": [
+        "33",
+        0
+      ],
+      "vae": [
+        "30",
+        2
+      ],
+      "upscale_model": [
+        "39",
+        0
+      ]
+    },
+    "class_type": "UltimateSDUpscaleCustomSample",
+    "_meta": {
+      "title": "Ultimate SD Upscale (Custom Sample)"
+    }
+  },
+  "39": {
+    "inputs": {
+      "model_name": "4x-UltraSharp.pth"
+    },
+    "class_type": "UpscaleModelLoader",
+    "_meta": {
+      "title": "Load Upscale Model"
+    }
+  },
+  "40": {
+    "inputs": {
+      "image": "https://res.cloudinary.com/dv6brx5oe/image/upload/v1751376834/generated_Gildan5000_Cobalt_01.jpg"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "41": {
+    "inputs": {
+      "url": "https://huggingface.co/Sweter/IPhoneRealism/blob/main/iphone-photo-V1-final)flux.safetensors",
+      "strength_model": 0.4000000000000002,
+      "strength_clip": 1,
+      "model": [
+        "42",
+        0
+      ],
+      "clip": [
+        "42",
+        1
+      ]
+    },
+    "class_type": "LoraLoaderFromURL",
+    "_meta": {
+      "title": "Load Lora from URL"
+    }
+  },
+  "42": {
+    "inputs": {
+      "url": "https://huggingface.co/Sweter/imperfect_skin_flux_lora/blob/main/Detailed_imperfect_skin_faces_and_torso_for_FLUX-000025.safetensors",
+      "strength_model": 0.1000000000000002,
+      "strength_clip": 1,
+      "model": [
+        "43",
+        0
+      ],
+      "clip": [
+        "43",
+        1
+      ]
+    },
+    "class_type": "LoraLoaderFromURL",
+    "_meta": {
+      "title": "Load Lora from URL"
+    }
+  },
+  "43": {
+    "inputs": {
+      "url": "https://huggingface.co/alimama-creative/FLUX.1-Turbo-Alpha/blob/main/diffusion_pytorch_model.safetensors",
+      "strength_model": 0,
+      "strength_clip": 1,
+      "model": [
+        "30",
+        0
+      ],
+      "clip": [
+        "30",
+        1
+      ]
+    },
+    "class_type": "LoraLoaderFromURL",
+    "_meta": {
+      "title": "Load Lora from URL"
+    }
+  }
+}
