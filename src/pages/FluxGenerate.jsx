@@ -110,7 +110,9 @@ function FluxGenerate() {
     const config = modelConfigs[selectedModel]
 
     // Create prediction through proxy server
-    const predictionResponse = await fetch(`${SERVER_API_URL}/api/replicate/predictions`, {
+    const apiUrl = `${SERVER_API_URL}/api/replicate/predictions`
+    console.log('Making API call to:', apiUrl)
+    const predictionResponse = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
