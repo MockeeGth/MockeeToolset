@@ -1,5 +1,14 @@
 // Netlify Function for API proxying - updated to use axios
 const axios = require('axios')
+const crypto = require('crypto')
+const FormData = require('form-data')
+
+// Cloudinary configuration
+const CLOUDINARY_CONFIG = {
+  cloudName: 'dv6brx5oe',
+  apiKey: '554749169912342',
+  apiSecret: '2WmK9gOQWW2dETw9206jpsJW_Cw'
+}
 
 exports.handler = async (event, context) => {
   console.log('Function called with path:', event.path)
@@ -81,12 +90,80 @@ exports.handler = async (event, context) => {
       }
     }
     
-    // Cloudinary upload proxy (placeholder)
-    if (path === '/cloudinary/upload' && event.httpMethod === 'POST') {
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({ message: 'Cloudinary upload endpoint' })
+    // Cloudinary upload proxy
+    if (path === 'cloudinary/upload' && event.httpMethod === 'POST') {
+      try {
+        // Parse multipart form data from the body
+        const boundary = event.headers['content-type']?.split('boundary=')[1]
+        if (!boundary) {
+          return {
+            statusCode: 400,
+            headers,
+            body: JSON.stringify({ error: 'No boundary found in content-type' })
+          }
+        }
+
+        // For simplicity, we'll extract the file from the event body
+        // In a real scenario, you'd want to properly parse multipart data
+        const body = Buffer.from(event.body, event.isBase64Encoded ? 'base64' : 'utf8')
+        
+        // Extract file content (this is a simplified approach)
+        // In production, you'd use a proper multipart parser
+        const contentTypeMatch = body.toString().match(/Content-Type:\s*([^\r\n]+)/i)
+        const contentType = contentTypeMatch ? contentTypeMatch[1] : 'image/jpeg'
+        
+        // Find the actual file data after the headers
+        const fileDataStart = body.indexOf('\r\n\r\n')
+        if (fileDataStart === -1) {
+          return {
+            statusCode: 400,
+            headers,
+            body: JSON.stringify({ error: 'Invalid multipart data' })
+          }
+        }
+        
+        const fileData = body.slice(fileDataStart + 4, body.lastIndexOf('\r\n--'))
+
+        // Create form data for Cloudinary
+        const formData = new FormData()
+        
+        // Add file buffer to form data
+        formData.append('file', fileData, {
+          filename: 'uploaded_file',
+          contentType: contentType
+        })
+        
+        // Generate timestamp and signature
+        const timestamp = Math.round(new Date().getTime() / 1000)
+        formData.append('timestamp', timestamp)
+        
+        // Create signature string and generate SHA-1 hash
+        const signatureString = `timestamp=${timestamp}${CLOUDINARY_CONFIG.apiSecret}`
+        const signature = crypto.createHash('sha1').update(signatureString).digest('hex')
+        
+        formData.append('signature', signature)
+        formData.append('api_key', CLOUDINARY_CONFIG.apiKey)
+
+        // Upload to Cloudinary
+        const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`
+        const response = await axios.post(cloudinaryUrl, formData, {
+          headers: {
+            ...formData.getHeaders()
+          }
+        })
+        
+        return {
+          statusCode: response.status,
+          headers,
+          body: JSON.stringify(response.data)
+        }
+      } catch (error) {
+        console.error('Error uploading to Cloudinary:', error)
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ error: 'Failed to upload image' })
+        }
       }
     }
     
