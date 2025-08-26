@@ -31,7 +31,11 @@ exports.handler = async (event, context) => {
     }
   }
 
-  const path = event.path.replace('/.netlify/functions/api/', '').replace('/.netlify/functions/api', '')
+  let path = event.path.replace('/.netlify/functions/api', '')
+  // Remove leading slash if present
+  if (path.startsWith('/')) {
+    path = path.substring(1)
+  }
   console.log('Processed path:', path)
   
   try {
@@ -91,7 +95,7 @@ exports.handler = async (event, context) => {
     }
     
     // Cloudinary upload proxy
-    if (path === 'cloudinary/upload' && event.httpMethod === 'POST') {
+    if (path === 'api/cloudinary/upload' && event.httpMethod === 'POST') {
       try {
         // Parse multipart form data from the body
         const boundary = event.headers['content-type']?.split('boundary=')[1]
